@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dog Wiki</title>
+  <style>
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .wiki-item {
+      margin: 15px;
+      box-shadow: 0 2px 5px rgba(1, 0, 0, 0.2);
+    }
+
+    .wiki-content {
+      padding: 15px;
+    }
+
+    .wiki-img {
+      width: 100%;
+    }
+
+    @media (min-width: 600px) {
+      .wiki-content {
+        display: flex;
+        flex-direction: row-reverse;
+      }
+      .wiki-text,
+      .img-container {
+        min-width: 50%;
+        max-width: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var laji = ['akita', 'beagle', 'husky', 'pug', 'hound-basset'];
+      var container = document.createElement('div');
+      container.className = 'container';
+      document.body.appendChild(container);
+      var chapter = document.createElement('h2');
+      chapter.innerText = 'Random image from a breed collection.';
+      container.appendChild(chapter);
+      laji.forEach(function(breed) {
+        var imageUrl;
+        fetch('https://dog.ceo/api/breed/' + breed + '/images/random')
+          .then(function(resp) { return resp.json(); })
+          .then(function(data) {
+            imageUrl = data.message;
+            return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + breed);
+          })
+          .then(function(resp) { return resp.json(); })
+          .then(function(data) {
+            var summary = data.extract;
+
+            var wikiItem = document.createElement('div');
+            wikiItem.className = 'wiki-item';
+
+            var header = document.createElement('h1');
+            header.className = 'wiki-header';
+            header.innerText = breed.charAt(0).toUpperCase() + breed.slice(1);
+            wikiItem.appendChild(header);
+
+            var content = document.createElement('div');
+            content.className = 'wiki-content';
+
+            var p = document.createElement('p');
+            p.className = 'wiki-text';
+            p.innerText = summary;
+            content.appendChild(p);
+
+            var imgContainer = document.createElement('div');
+            imgContainer.className = 'img-container';
+            var img = document.createElement('img');
+            img.className = 'wiki-img';
+            img.src = imageUrl;
+            imgContainer.appendChild(img);
+            content.appendChild(imgContainer);
+
+            wikiItem.appendChild(content);
+            container.appendChild(wikiItem);
+          })
+          .catch(function(err) {
+            console.error('Error fetching data for ' + breed + ':', err);
+          });
+      });
+    });
+  </script>
+</body>
+</html>
